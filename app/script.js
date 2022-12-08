@@ -1,7 +1,20 @@
+// var stringArray = ["1", "2", "3", "4", "5"];
+// var numberArray = [];
+
+// length = stringArray.length;
+
+// for (var i = 0; i < length; i++) {
+//   numberArray.push(parseInt(stringArray[i]));
+//   console.log(numberArray);
+// }
 var students = [
-  { name: "Ramya", std: "XII A", rank: "5", likes: [{}] },
-  { name: "Booja", std: "X B", rank: "2", likes: [{}] },
+  { id: "1670392277608", name: "Ramya", std: "XII A", rank: "5", likes: [{}] },
+  { id: "1670392301915", name: "Booja", std: "X B", rank: "2", likes: [{}] },
 ];
+
+function makeId() {
+  return new Date().getTime();
+}
 
 function addToStudentsContainer(studentshtml) {
   var container = document.querySelector("#students-container");
@@ -16,6 +29,7 @@ function clearStudentsContainer() {
 function makeStudentHTML(student) {
   const div = document.createElement("div");
   div.setAttribute("class", "border-margin");
+  div.setAttribute("id", student.id);
 
   const h1 = document.createElement("h1");
   h1.innerHTML = student.name;
@@ -32,13 +46,28 @@ function makeStudentHTML(student) {
 
   div.appendChild(h2);
 
+  const button = document.createElement("button");
+  button.innerHTML = "Remove student";
+
+  div.appendChild(button);
+
+  button.addEventListener("click", function () {
+    var newStudents = students.filter((s) => s.id != student.id);
+    students = newStudents;
+    render(students);
+  });
+
   return div;
 }
 
-function render() {
+function render(studentsToRender) {
   clearStudentsContainer();
-  for (var i = 0; i < students.length; i++) {
-    var student = students[i];
+  var studentsArray = [];
+  for (var i = 0; i < studentsToRender.length; i++) {
+    if (studentsToRender[i].rank < 10) {
+      studentsArray.push(studentsToRender[i]);
+    }
+    var student = studentsToRender[i];
     var html = makeStudentHTML(student);
     addToStudentsContainer(html);
   }
@@ -63,12 +92,13 @@ function handleSubmit(e) {
   }
 
   var student = {
+    id: makeId(),
     name: name,
     std: std,
     rank: rank,
   };
   students.push(student);
-  render();
+  render(students);
   clearInputs();
 }
 function studentForm() {
@@ -77,9 +107,37 @@ function studentForm() {
   form.addEventListener("submit", handleSubmit);
 }
 
+function handleSearch() {
+  var search = document.querySelector("#student-search-input");
+  search.addEventListener("keyup", function (e) {
+    var term = search.value;
+    var filteredStudents = students.filter((s) =>
+      s.name.toLowerCase().includes(term)
+    );
+    render(filteredStudents);
+  });
+}
+function rankSearch() {
+  var search = document.querySelector("#student-search-input");
+  search.addEventListener("keyup", function (e) {
+    var term = search.value;
+    var filteredStudents = students.filter((s) =>
+      s.name.toLowerCase().includes(term, 0)
+    );
+    render(filteredStudents);
+  });
+}
+// render(studentsToRender);
+// var newArray = students.filter(function (s) {
+//   return s.rank <= 10;
+// });
+// console.log(newArray);
+
 function main() {
-  render();
+  render(students);
   studentForm();
+  handleSearch();
+  rankSearch();
 }
 
 main();
